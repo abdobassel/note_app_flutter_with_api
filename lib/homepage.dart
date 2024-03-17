@@ -4,6 +4,7 @@ import 'package:notes_flutter/auth/login.dart';
 import 'package:notes_flutter/crud/editnotes.dart';
 import 'package:notes_flutter/endpoints.dart';
 import 'package:notes_flutter/main.dart';
+import 'package:notes_flutter/toast.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key});
@@ -80,8 +81,23 @@ class _HomePageState extends State<HomePage> {
                   return Dismissible(
                     key: Key("$index"),
                     direction: DismissDirection.horizontal,
-                    onDismissed: (direction) {
-                      // code what you do ?
+                    onDismissed: (direction) async {
+                      var response = await crud.postRequest(DELETE_NOTE, {
+                        "note_id": '${notes[index]["id"]}',
+                      });
+                      if (response != null &&
+                          response['status'] != null &&
+                          response['status']) {
+                        print('Success deleted');
+                        ShowToast(
+                            text: 'Deleted Note', state: ToastStates.SUCCESS);
+                        Navigator.of(context).pushNamed("homepage");
+                      } else {
+                        print('Failed Deleted');
+                        ShowToast(
+                            text: 'Failed Update Note Or No changes',
+                            state: ToastStates.ERROR);
+                      }
                     },
                     child: InkWell(
                       onTap: () {
