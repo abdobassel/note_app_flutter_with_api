@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:notes_flutter/endpoints.dart';
+import 'package:notes_flutter/main.dart';
+import 'package:notes_flutter/toast.dart';
 
 class AddNotes extends StatefulWidget {
   const AddNotes({super.key});
@@ -8,6 +11,30 @@ class AddNotes extends StatefulWidget {
 }
 
 class _AddNotesState extends State<AddNotes> {
+  TextEditingController title = TextEditingController();
+  TextEditingController body = TextEditingController();
+  GlobalKey<FormState> form = GlobalKey();
+  Crud crud = Crud();
+  bool isLoading = false;
+  addNote() async {
+    if (form.currentState!.validate()) {
+      var respo = await crud.postRequest(ADD_NOTE, {
+        'title': title.text,
+        'body': body.text,
+        'user_id': sharedPrefrence.get('id'),
+      });
+
+      if (respo != null && respo['status'] != null && respo['status']) {
+        print('Success');
+        ShowToast(text: ' Added Note', state: ToastStates.SUCCESS);
+        Navigator.of(context).pushNamed("homepage");
+      } else {
+        print('failed Add');
+        ShowToast(text: 'Failed Adding Note', state: ToastStates.ERROR);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,44 +44,65 @@ class _AddNotesState extends State<AddNotes> {
       body: Column(
         children: [
           Form(
+              key: form,
               child: Column(
-            children: [
-              TextFormField(
-                maxLength: 30,
-                maxLines: 1,
-                decoration: InputDecoration(
-                    filled: true,
-                    labelText: "Tilte",
-                    fillColor: Colors.white,
-                    prefixIcon: Icon(Icons.note)),
-              ),
-              TextFormField(
-                maxLength: 300,
-                maxLines: 4,
-                decoration: InputDecoration(
-                    filled: true,
-                    labelText: "Note Here",
-                    fillColor: Colors.white,
-                    prefixIcon: Icon(Icons.note)),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  return ShowBottomChoose();
-                },
-                child: Text("Add img"),
-              ),
-              SizedBox(
-                height: 40,
-              ),
-              ElevatedButton(
-                style: ButtonStyle(
-                  alignment: Alignment.center,
-                ),
-                onPressed: () {},
-                child: Text("Add This Note"),
-              ),
-            ],
-          ))
+                children: [
+                  TextFormField(
+                    validator: (value) {
+                      if (value != null) {
+                        if (value!.isEmpty) {
+                          return 'Title can not be empty';
+                        }
+                        return null;
+                      }
+                    },
+                    controller: title,
+                    maxLength: 30,
+                    maxLines: 1,
+                    decoration: InputDecoration(
+                        filled: true,
+                        labelText: "Tilte",
+                        fillColor: Colors.white,
+                        prefixIcon: Icon(Icons.note)),
+                  ),
+                  TextFormField(
+                    validator: (value) {
+                      if (value != null) {
+                        if (value.isEmpty) {
+                          return 'body of note can not be empty';
+                        }
+                        return null;
+                      }
+                    },
+                    maxLength: 300,
+                    maxLines: 4,
+                    controller: body,
+                    decoration: InputDecoration(
+                        filled: true,
+                        labelText: "Note Here",
+                        fillColor: Colors.white,
+                        prefixIcon: Icon(Icons.note)),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      return ShowBottomChoose();
+                    },
+                    child: Text("Add img"),
+                  ),
+                  SizedBox(
+                    height: 40,
+                  ),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      alignment: Alignment.center,
+                    ),
+                    onPressed: () async {
+                      await addNote();
+                    },
+                    child: Text("Add"),
+                  ),
+                ],
+              ))
         ],
       ),
     );

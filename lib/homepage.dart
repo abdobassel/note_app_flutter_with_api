@@ -35,6 +35,12 @@ class _HomePageState extends State<HomePage> {
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).pushNamed('addnotes');
+          },
+          child: Icon(Icons.add_comment),
+        ),
         backgroundColor: Colors.lightBlue[50],
         appBar: AppBar(
           title: Text('MY Notes'),
