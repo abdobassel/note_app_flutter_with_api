@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:notes_flutter/endpoints.dart';
-import "dart:convert";
+import 'dart:convert';
 
 class Sigup extends StatefulWidget {
-  const Sigup({super.key});
+  const Sigup({Key? key});
 
   @override
   State<Sigup> createState() => _SigupState();
@@ -13,11 +13,12 @@ class _SigupState extends State<Sigup> {
   Crud crud = Crud();
   // key
 
-  // conrolers
+  // controllers
   TextEditingController emailctr = TextEditingController();
   TextEditingController pwctr = TextEditingController();
   TextEditingController username = TextEditingController();
-//signup method
+
+  // signup method
   GlobalKey<FormState> form = GlobalKey();
   signup() async {
     if (form.currentState!.validate()) {
@@ -44,14 +45,22 @@ class _SigupState extends State<Sigup> {
         title: Text("Welcome"),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Center(
-            child: Image.asset('images/pic3.png'),
-          ),
-          Container(
-              padding: EdgeInsets.all(20),
-              child: Form(
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'images/note.png',
+                height: 150,
+                width: 250,
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              Container(
+                padding: EdgeInsets.all(20),
+                child: Form(
                   key: form,
                   child: Column(
                     children: [
@@ -67,7 +76,8 @@ class _SigupState extends State<Sigup> {
                           hintText: "Enter Username",
                           prefixIcon: Icon(Icons.person),
                           border: OutlineInputBorder(
-                              borderSide: BorderSide(width: 1)),
+                            borderSide: BorderSide(width: 1),
+                          ),
                         ),
                       ),
                       SizedBox(
@@ -86,7 +96,8 @@ class _SigupState extends State<Sigup> {
                           hintText: " Email",
                           prefixIcon: Icon(Icons.email),
                           border: OutlineInputBorder(
-                              borderSide: BorderSide(width: 1)),
+                            borderSide: BorderSide(width: 1),
+                          ),
                         ),
                       ),
                       SizedBox(
@@ -105,7 +116,8 @@ class _SigupState extends State<Sigup> {
                           hintText: "Enter password",
                           prefixIcon: Icon(Icons.password_rounded),
                           border: OutlineInputBorder(
-                              borderSide: BorderSide(width: 1)),
+                            borderSide: BorderSide(width: 1),
+                          ),
                         ),
                       ),
                       Container(
@@ -129,18 +141,25 @@ class _SigupState extends State<Sigup> {
                         margin: EdgeInsets.all(10),
                         color: Colors.blue,
                         child: MaterialButton(
-                            onPressed: () {
-                              signup();
-                            },
-                            child: Text(
-                              'Create',
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.white),
-                            )),
+                          onPressed: () {
+                            signup();
+                          },
+                          child: Text(
+                            'Create',
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                       )
                     ],
-                  )))
-        ]),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
