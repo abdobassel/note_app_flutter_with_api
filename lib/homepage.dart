@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notes_flutter/auth/cardNotes.dart';
 import 'package:notes_flutter/auth/login.dart';
+import 'package:notes_flutter/crud/editnotes.dart';
 import 'package:notes_flutter/endpoints.dart';
 import 'package:notes_flutter/main.dart';
 
@@ -73,6 +74,7 @@ class _HomePageState extends State<HomePage> {
             } else if (snapshot.hasData) {
               List notes = snapshot.data;
               return ListView.builder(
+                physics: BouncingScrollPhysics(),
                 itemCount: notes.length,
                 itemBuilder: (context, index) {
                   return Dismissible(
@@ -81,9 +83,21 @@ class _HomePageState extends State<HomePage> {
                     onDismissed: (direction) {
                       // code what you do ?
                     },
-                    child: CardNote(
-                      title: '${notes[index]["title"]}',
-                      body: '${notes[index]["body"]}',
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.of(context)
+                            .push(MaterialPageRoute(builder: (context) {
+                          return EditNotes(
+                            titleNote: '${notes[index]["title"]}',
+                            bodyNote: '${notes[index]["body"]}',
+                            noteId: '${notes[index]["id"]}',
+                          );
+                        }));
+                      },
+                      child: CardNote(
+                        title: '${notes[index]["title"]}',
+                        body: '${notes[index]["body"]}',
+                      ),
                     ),
                   );
                 },
