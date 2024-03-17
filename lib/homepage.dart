@@ -1,85 +1,94 @@
 import 'package:flutter/material.dart';
+import 'package:notes_flutter/auth/cardNotes.dart';
+import 'package:notes_flutter/auth/login.dart';
+import 'package:notes_flutter/endpoints.dart';
+import 'package:notes_flutter/main.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  List notes = [
-    {"note": "promes sso notes svsye s", "image": "pic1.png"},
-    {"note": "promes sso notes svsye s", "image": "pic1.png"},
-    {"note": "promes sso notes svsye s", "image": "pic1.png"},
-    {"note": "promes sso notes svsye s", "image": "pic1.png"}
-  ];
+  Crud crud = Crud();
+
+  Future<dynamic> getNotes() async {
+    try {
+      var response =
+          await crud.postRequest(NOTES, {"user_id": sharedPrefrence.get('id')});
+      if (response['status'] == "success") {
+        return response['data'];
+      } else if (response['status'] == "no data") {
+        print('no Data for this user');
+        return null;
+      }
+    } catch (e) {
+      print(e.toString());
+      throw e;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Scaffold(
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed('addnotes');
-              print('new note');
-            },
-            child: Text(
-              'Add',
-              style: TextStyle(color: Colors.amber),
+        backgroundColor: Colors.lightBlue[50],
+        appBar: AppBar(
+          title: Text('MY Notes'),
+          backgroundColor: Colors.lightBlue[50],
+          actions: [
+            IconButton(
+              onPressed: () async {
+                sharedPrefrence
+                    .clear(); // حذف جميع البيانات من SharedPreferences
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Login()),
+                ); // توجيه المستخدم إلى صفحة تسجيل الدخول بعد تسجيل الخروج
+              },
+              icon: Icon(Icons.logout),
             ),
-          ),
-          appBar: AppBar(),
-          body: Container(
-            child: ListView.builder(
+          ],
+        ),
+        body: FutureBuilder(
+          future: getNotes(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            } else if (snapshot.hasData) {
+              List notes = snapshot.data;
+              return ListView.builder(
                 itemCount: notes.length,
-                itemBuilder: (context, i) {
+                itemBuilder: (context, index) {
                   return Dismissible(
-                      key: Key("$i"),
-                      child: ListNotes(
-                        notes: notes[i],
-                      ));
-                }),
-          )),
-    );
-  }
-}
-
-class ListNotes extends StatelessWidget {
-  final notes;
-
-  const ListNotes({super.key, this.notes});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.all(7),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Image.asset(
-              "images/pic1.png",
-              fit: BoxFit.fill,
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: ListTile(
-              subtitle: IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.delete),
-              ),
-              title: Text('${notes['note']}'),
-              trailing: IconButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed("editnotes");
+                    key: Key("$index"),
+                    direction: DismissDirection.horizontal,
+                    onDismissed: (direction) {
+                      // code what you do ?
+                    },
+                    child: CardNote(
+                      title: '${notes[index]["title"]}',
+                      body: '${notes[index]["body"]}',
+                    ),
+                  );
                 },
-                icon: Icon(Icons.edit_note),
-              ),
-            ),
-          ),
-        ],
+              );
+            } else {
+              return Center(
+                child: Text('No data available.'),
+              );
+            }
+          },
+        ),
       ),
     );
   }

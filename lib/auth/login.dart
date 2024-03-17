@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:notes_flutter/endpoints.dart';
+import 'package:notes_flutter/main.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -25,8 +26,13 @@ class _LoginState extends State<Login> {
 
       if (respo['message'] == "success") {
         print('Success');
+        print(respo['userinfo']['id']);
+        print(respo['userinfo']['username']);
         Navigator.of(context)
             .pushNamedAndRemoveUntil("homepage", (route) => false);
+        sharedPrefrence.setString('id', respo['userinfo']['id']);
+        sharedPrefrence.setString('username', respo['userinfo']['username']);
+        sharedPrefrence.setString('email', respo['userinfo']['email']);
       } else {
         print('failed');
       }
@@ -62,7 +68,7 @@ class _LoginState extends State<Login> {
                             return null;
                           },
                           decoration: InputDecoration(
-                            hintText: "Enter Username",
+                            hintText: "Enter Email Address",
                             prefixIcon: Icon(Icons.person),
                             border: OutlineInputBorder(
                                 borderSide: BorderSide(width: 1)),
@@ -80,6 +86,7 @@ class _LoginState extends State<Login> {
                             return null;
                           },
                           obscureText: true,
+                          keyboardType: TextInputType.visiblePassword,
                           decoration: InputDecoration(
                             hintText: "Enter password",
                             prefixIcon: Icon(Icons.password_rounded),

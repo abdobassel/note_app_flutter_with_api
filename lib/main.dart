@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import "package:notes_flutter/auth/login.dart";
 import "package:notes_flutter/auth/signup.dart";
@@ -6,7 +7,10 @@ import "package:notes_flutter/crud/addnotes.dart";
 import "package:notes_flutter/crud/editnotes.dart";
 import "package:notes_flutter/homepage.dart";
 
-void main() {
+late SharedPreferences sharedPrefrence;
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  sharedPrefrence = await SharedPreferences.getInstance();
   runApp(MyApp());
 }
 
@@ -23,7 +27,9 @@ class MyApp extends StatelessWidget {
             TextTheme(titleLarge: TextStyle(fontSize: 20, color: Colors.white)),
       ),
       debugShowCheckedModeBanner: false,
-      home: const Login(),
+      home: sharedPrefrence.getString('id') == null
+          ? const Login()
+          : const HomePage(),
       routes: {
         "login": (context) => const Login(),
         "signup": (context) => const Sigup(),
