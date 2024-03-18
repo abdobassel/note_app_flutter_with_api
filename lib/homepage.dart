@@ -84,6 +84,7 @@ class _HomePageState extends State<HomePage> {
                     onDismissed: (direction) async {
                       var response = await crud.postRequest(DELETE_NOTE, {
                         "note_id": '${notes[index]["id"]}',
+                        "img_name": '${notes[index]["img"]}',
                       });
                       if (response != null &&
                           response['status'] != null &&
@@ -95,7 +96,7 @@ class _HomePageState extends State<HomePage> {
                       } else {
                         print('Failed Deleted');
                         ShowToast(
-                            text: 'Failed Update Note Or No changes',
+                            text: 'Failed deleted Note Or No changes',
                             state: ToastStates.ERROR);
                       }
                     },

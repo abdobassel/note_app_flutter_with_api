@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:path/path.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -53,6 +55,41 @@ class Crud {
       }
     } catch (e) {
       print(e.toString());
+    }
+  }
+
+  // upload any type of data
+  Future<dynamic> postMultiRequest(
+      String url, Map data, File? file, String namefield) async {
+    var request = http.MultipartRequest('POST', Uri.parse(url));
+
+    // إذا كان الملف موجودًا، أضفه إلى الطلب
+    if (file != null) {
+      var length = await file.length();
+      var stream = http.ByteStream(file.openRead());
+      var filename = basename(file.path); // استيراد المكتبة path
+      var multipartFile =
+          http.MultipartFile(namefield, stream, length, filename: filename);
+
+      request.files.add(multipartFile);
+    }
+
+    // أضف باقي البيانات إلى الحقول
+    data.forEach((key, value) {
+      request.fields[key] = value.toString();
+    });
+
+    // أرسل الطلب
+    var myRequest = await request.send();
+
+    // استقبل الرد
+    var response = await http.Response.fromStream(myRequest);
+
+    // فحص حالة الرد
+    if (myRequest.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      print('Error ${myRequest.statusCode}');
     }
   }
 }

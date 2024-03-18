@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:notes_flutter/endpoints.dart';
 import 'package:notes_flutter/main.dart';
 import 'package:notes_flutter/toast.dart';
@@ -11,18 +14,24 @@ class AddNotes extends StatefulWidget {
 }
 
 class _AddNotesState extends State<AddNotes> {
+  File? myfile;
   TextEditingController title = TextEditingController();
   TextEditingController body = TextEditingController();
   GlobalKey<FormState> form = GlobalKey();
   Crud crud = Crud();
   bool isLoading = false;
+  bool uploadImage = false;
   addNote() async {
     if (form.currentState!.validate()) {
-      var respo = await crud.postRequest(ADD_NOTE, {
-        'title': title.text,
-        'body': body.text,
-        'user_id': sharedPrefrence.get('id'),
-      });
+      var respo = await crud.postMultiRequest(
+          ADD_NOTE,
+          {
+            'title': title.text,
+            'body': body.text,
+            'user_id': sharedPrefrence.get('id'),
+          },
+          myfile,
+          'note_img');
 
       if (respo != null && respo['status'] != null && respo['status']) {
         print('Success');
@@ -120,7 +129,11 @@ class _AddNotesState extends State<AddNotes> {
                 children: [
                   Text('Choose Image For Note', style: TextStyle(fontSize: 30)),
                   InkWell(
-                    onTap: () {},
+                    onTap: () async {
+                      XFile? fileSource = await ImagePicker()
+                          .pickImage(source: ImageSource.gallery);
+                      myfile = File(fileSource!.path);
+                    },
                     child: Container(
                         margin: EdgeInsets.only(top: 20),
                         width: double.infinity,
@@ -142,7 +155,11 @@ class _AddNotesState extends State<AddNotes> {
                     height: 10,
                   ),
                   InkWell(
-                    onTap: () {},
+                    onTap: () async {
+                      XFile? fileSource = await ImagePicker()
+                          .pickImage(source: ImageSource.camera);
+                      myfile = File(fileSource!.path);
+                    },
                     child: Container(
                         width: double.infinity,
                         child: Row(
